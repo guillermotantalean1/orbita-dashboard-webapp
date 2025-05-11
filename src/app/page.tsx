@@ -4,13 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faArrowRight, faFileAlt, faVideo, faCrown, faUser, faSignOutAlt, 
+  faArrowRight, faFileAlt, faVideo, faCrown, faSignOutAlt, 
   faHome, faRoad, faCompass, faGraduationCap, faUserMd, faBars, faTimes,
   faChevronDown, faChevronRight, faCheck, faCalendarAlt, faCircleNotch,
   faChevronLeft
 } from '@fortawesome/free-solid-svg-icons';
 import SolarSystem from './components/SolarSystem';
+import testsData from './data/tests-data';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import TestComponent from './components/TestComponent';
 
 // Definir la interfaz para los elementos del menú con submenús
 interface MenuItem {
@@ -32,14 +34,18 @@ export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [showingSolarSystem, setShowingSolarSystem] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeTest, setActiveTest] = useState<any>(null);
+  const [showTestInterface, setShowTestInterface] = useState(false);
 
-  // Lista de tests disponibles con progreso
-  const tests = [
-    { id: 'vocational', name: 'Descubre tu vocación', status: 'pendiente', progress: 20, icon: faCompass, desc: 'Explora qué te apasiona y hacia dónde te diriges' },
-    { id: 'personality', name: 'Conoce tu personalidad', status: 'pendiente', progress: 10, icon: faUser, desc: 'Descubre cómo tu forma de ser influye en tu futuro' },
-    { id: 'aptitude', name: 'Tus talentos únicos', status: 'pendiente', progress: 0, icon: faGraduationCap, desc: 'Identifica tus habilidades naturales y potencial' },
-    { id: 'values', name: 'Lo que realmente valoras', status: 'pendiente', progress: 5, icon: faFileAlt, desc: 'Explora qué es lo que más importa en tu vida profesional' }
-  ];
+  // Use the testsData from our imported module
+  const tests = testsData.map(test => ({
+    id: test.route,
+    name: test.name,
+    status: 'pendiente',
+    progress: 0, // Start with no progress for new tests
+    icon: faCompass,
+    desc: test.description
+  }));
   
   // Calcular el progreso total basado en el avance de cada test
   const calculateTotalProgress = () => {
@@ -133,13 +139,6 @@ export default function Home() {
         }, 500);
       }, 300);
     }, 2000);
-  };
-  
-  // Manejador para tests del SolarSystem
-  const handleStartTest = () => {
-    // En una aplicación real, aquí navegaríamos a la ruta del test
-    // Por ahora, mostraremos el mismo efecto de portal espacial
-    handleStartNowClick();
   };
 
   const toggleMenu = () => {
@@ -346,18 +345,92 @@ export default function Home() {
       );
     } else if (activeSection === 'tests') {
       return (
-        <div className="space-y-4">
-          <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-700/80 p-5 mb-6">
-            <h2 className="text-xl font-bold mb-2">Tests Vocacionales</h2>
-            <p className="text-gray-400">
-              Descubre tus aptitudes, intereses y valores profesionales a través de nuestros tests especializados.
-              Cada test te acercará un paso más a tu vocación ideal.
-            </p>
-          </div>
-          
-          {/* Integración del componente SolarSystem para visualizar los tests como planetas */}
-          <div className="h-[calc(100vh-300px)] max-h-[600px] max-w-[900px] mx-auto flex items-center justify-center">
-            <SolarSystem onLearnMore={handleStartTest} />
+        <div className="space-y-8">
+          <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-700/80 p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold mb-2">Tests Vocacionales</h2>
+              <p className="text-gray-400 text-sm">
+                Descubre tus aptitudes, intereses y valores profesionales a través de nuestros tests especializados.
+              </p>
+            </div>
+            
+            {showTestInterface && activeTest ? (
+              <div className="mt-4">
+                <TestComponent test={activeTest} onComplete={() => {
+                  setShowTestInterface(false);
+                  setActiveTest(null);
+                  // Refresh to show updated results
+                  router.refresh();
+                }} />
+              </div>
+            ) : (
+              <div className="mt-8 aspect-video relative rounded-lg overflow-hidden border border-gray-700/50 bg-black/30">
+                <SolarSystem 
+                  onLearnMore={(planet) => {
+                    // Find the test data and load it directly instead of navigating
+                    const test = testsData.find(t => t.route === planet.route);
+                    if (test) {
+                      setIsLoading(true);
+                      setLoadingProgress(0);
+                      
+                      // Simulate loading
+                      const interval = setInterval(() => {
+                        setLoadingProgress(prev => {
+                          const next = prev + Math.random() * 5;
+                          return next > 100 ? 100 : next;
+                        });
+                      }, 50);
+                      
+                      // After loading completes
+                      setTimeout(() => {
+                        clearInterval(interval);
+                        setLoadingProgress(100);
+                        
+                        setTimeout(() => {
+                          setActiveTest(test);
+                          setShowTestInterface(true);
+                          setIsLoading(false);
+                        }, 500);
+                      }, 1500);
+                    }
+                  }}
+                  onViewResults={(planet) => {
+                    // Check if results exist
+                    const results = localStorage.getItem(`test_${planet.route}_results`);
+                    if (results) {
+                      router.push(`/results/${planet.route}`);
+                    } else {
+                      // Start the test directly
+                      const test = testsData.find(t => t.route === planet.route);
+                      if (test) {
+                        setIsLoading(true);
+                        setLoadingProgress(0);
+                        
+                        // Simulate loading
+                        const interval = setInterval(() => {
+                          setLoadingProgress(prev => {
+                            const next = prev + Math.random() * 5;
+                            return next > 100 ? 100 : next;
+                          });
+                        }, 50);
+                        
+                        // After loading completes
+                        setTimeout(() => {
+                          clearInterval(interval);
+                          setLoadingProgress(100);
+                          
+                          setTimeout(() => {
+                            setActiveTest(test);
+                            setShowTestInterface(true);
+                            setIsLoading(false);
+                          }, 500);
+                        }, 1500);
+                      }
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       );
