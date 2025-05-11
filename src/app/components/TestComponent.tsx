@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Test, TestOption } from '../data/tests-data';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClock, faQuestion, faChartPie, faArrowRight, faArrowLeft, faCheck, faForward, faExclamationTriangle, faTimes } from '@fortawesome/free-solid-svg-icons';
-import OrbitLogo from './OrbitLogo';
+import { faClock, faQuestion, faChartPie, faArrowRight, faArrowLeft, faCheck, faForward, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useGuide } from '../context/GuideContext';
 
 interface TestComponentProps {
@@ -19,17 +18,19 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
   const [showModal, setShowModal] = useState(false);
   const [dimensionScores, setDimensionScores] = useState<Record<string, number>>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showMilestone, setShowMilestone] = useState(false);
-  const [milestoneMessage, setMilestoneMessage] = useState('');
   const [showExitConfirmation, setShowExitConfirmation] = useState<boolean>(false);
   const { showMessage } = useGuide();
+  
+  // Referencia para rastrear si ya mostramos mensajes en ciertos hitos
+  const milestoneShown = useRef<Record<string, boolean>>({});
 
-  // Milestone messages that appear at 25%, 50%, and 75% completion
-  const milestoneMessages = [
+  // Milestone messages que aparecen al 25%, 50% y 75% de completitud
+  // Usando useMemo para evitar recrear el array en cada renderizado
+  const milestoneMessages = useMemo(() => [
     "¡Buen progreso! Ya vas por un cuarto del test. 🚀",
     "¡Vas por la mitad! Continúa así, lo estás haciendo muy bien. ✨",
     "¡75% completado! Ya falta poco para terminar. 🌟"
-  ];
+  ], []);
 
   // Initialize dimension scores if the test has dimensions
   useEffect(() => {
@@ -40,19 +41,23 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
       });
       setDimensionScores(initialScores);
     }
-    
-    // Show welcome message when component loads
+  }, [test.dimensions]);
+  
+  // Mostrar mensaje de bienvenida solo al principio
+  useEffect(() => {
     if (showIntro) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         showMessage({
           text: `¡Bienvenido al test de ${test.name}! Aquí descubrirás aspectos importantes sobre ti mismo. Estoy aquí para guiarte.`,
           type: 'info'
         });
       }, 1000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [test, showIntro, showMessage]);
+  }, [showIntro, test.name, showMessage]);
 
-  // Check if we should show a milestone message
+  // Check if we should show a milestone message - SOLO a través del guía
   useEffect(() => {
     if (current === 0) return;
     
@@ -60,33 +65,34 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
     const milestone50 = Math.floor(test.questions.length * 0.5);
     const milestone75 = Math.floor(test.questions.length * 0.75);
     
-    if (current === milestone25) {
-      setMilestoneMessage(milestoneMessages[0]);
-      setShowMilestone(true);
+    // Usar índices estables para los hitos
+    const milestoneKey25 = 'milestone25';
+    const milestoneKey50 = 'milestone50';
+    const milestoneKey75 = 'milestone75';
+    
+    if (current === milestone25 && !milestoneShown.current[milestoneKey25]) {
+      milestoneShown.current[milestoneKey25] = true;
       // Show guide message at 25% completion
       showMessage({
-        text: "¡Buen avance! Vas por buen camino. Recuerda responder con sinceridad para obtener resultados precisos.",
+        text: milestoneMessages[0] + " Recuerda responder con sinceridad para obtener resultados precisos.",
         type: 'tip'
       });
-      setTimeout(() => setShowMilestone(false), 2000);
-    } else if (current === milestone50) {
-      setMilestoneMessage(milestoneMessages[1]);
-      setShowMilestone(true);
-      // Show guide message at 50% completion
+    } 
+    else if (current === milestone50 && !milestoneShown.current[milestoneKey50]) {
+      milestoneShown.current[milestoneKey50] = true;
+      // Show guide message at 50% completion  
       showMessage({
-        text: "¡Ya estás a mitad de camino! Tus respuestas están ayudando a crear un perfil detallado de tus intereses.",
+        text: milestoneMessages[1] + " Tus respuestas están ayudando a crear un perfil detallado de tus intereses.",
         type: 'tip'
       });
-      setTimeout(() => setShowMilestone(false), 2000);
-    } else if (current === milestone75) {
-      setMilestoneMessage(milestoneMessages[2]);
-      setShowMilestone(true);
+    } 
+    else if (current === milestone75 && !milestoneShown.current[milestoneKey75]) {
+      milestoneShown.current[milestoneKey75] = true;
       // Show guide message at 75% completion
       showMessage({
-        text: "¡La recta final! Solo quedan unas pocas preguntas más. Estás haciendo un gran trabajo.",
+        text: milestoneMessages[2] + " Solo quedan unas pocas preguntas más. Estás haciendo un gran trabajo.",
         type: 'tip'
       });
-      setTimeout(() => setShowMilestone(false), 2000);
     }
   }, [current, test.questions.length, milestoneMessages, showMessage]);
 
@@ -101,7 +107,7 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
           const question = test.questions[index];
           const dimension = question.dimension;
           
-          if (dimension && answer.score !== undefined) {
+          if (dimension && typeof answer.score === 'number') {
             results[dimension] = (results[dimension] || 0) + answer.score;
           }
         }
@@ -133,7 +139,7 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
     };
   };
 
-  const handleSelect = (option: TestOption, index: number) => {
+  const handleSelect = (option: TestOption) => {
     // First update the answer
     const updated = [...answers];
     updated[current] = option;
@@ -142,11 +148,17 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
     // Update dimension scores if applicable
     if (test.dimensions) {
       const question = test.questions[current];
-      if (question.dimension && option.score !== undefined) {
-        setDimensionScores(prev => ({
-          ...prev,
-          [question.dimension]: (prev[question.dimension] || 0) + option.score
-        }));
+      const dimension = question.dimension;
+      const score = option.score;
+      
+      if (dimension && score !== undefined) {
+        setDimensionScores(prev => {
+          // Crear una copia segura
+          const newScores = { ...prev };
+          // Actualizar si la dimensión existe
+          newScores[dimension] = (prev[dimension] || 0) + (typeof score === 'number' ? score : parseInt(score) || 0);
+          return newScores;
+        });
       }
     }
     
@@ -212,17 +224,14 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
 
   // Create a custom hook to handle exit functionality
   const useExitHandler = () => {
-    const handleExitClick = useCallback((e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log("Exit button clicked directly");
-      setShowExitConfirmation(true);
-    }, []);
-
-    return { handleExitClick };
+    // No necesitamos handleExitClick ya que usamos onClick directamente
+    return {
+      // Este objeto vacío se mantiene para evitar cambiar demasiado el código
+    };
   };
 
-  const { handleExitClick } = useExitHandler();
+  // Esto lo mantenemos por compatibilidad con el código existente
+  useExitHandler();
 
   // Callbacks for exit confirmation
   const confirmExit = useCallback(() => {
@@ -277,10 +286,6 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
             <span className="text-xs font-medium">Volver</span>
           </button>
           
-          {/* Orbit logo at the top of the card */}
-          <div className="absolute top-4 right-4">
-            <OrbitLogo width={80} height={40} />
-          </div>
           
           {/* Test introduction header with planet icon - added mt-8 for spacing */}
           <div className="flex flex-col items-center mb-6 text-center mt-8">
@@ -396,13 +401,6 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
         ></div>
       </div>
 
-      {/* Milestone message - appears at 25%, 50%, 75% progress */}
-      {showMilestone && (
-        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 bg-slate-800/90 text-white px-4 py-2 rounded-lg z-20 shadow-lg border border-blue-500/30 animate-fadeIn text-center">
-          <p className="text-sm font-medium">{milestoneMessage}</p>
-        </div>
-      )}
-
       <div className={`bg-slate-900/80 backdrop-blur-md rounded-2xl p-8 border border-indigo-500/20 shadow-2xl transition-opacity duration-250 ${isTransitioning ? 'opacity-30' : 'opacity-100'}`}>
         {/* Back button positioned at the top-left corner with better visual distinction */}
         <button 
@@ -414,11 +412,7 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
           <span className="text-xs font-medium">Volver</span>
         </button>
         
-        {/* Orbit logo at the top of the card */}
-        <div className="absolute top-4 right-4">
-          <OrbitLogo width={80} height={40} />
-        </div>
-        
+       
         {/* Cabecera del test - add mt-8 for spacing */}
         <div className="flex items-center justify-between mb-8 mt-8">
           <div className="flex items-center">
@@ -475,7 +469,7 @@ const TestComponent: React.FC<TestComponentProps> = ({ test, onComplete }) => {
               return (
                 <button
                   key={idx}
-                  onClick={() => !isTransitioning && handleSelect(opt, idx)}
+                  onClick={() => !isTransitioning && handleSelect(opt)}
                   disabled={isTransitioning}
                   className={`w-full text-left px-6 py-4 rounded-xl border transition-all duration-200 relative
                     ${isSelected

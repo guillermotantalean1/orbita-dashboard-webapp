@@ -17,7 +17,7 @@ const OrbitLogo: React.FC<OrbitLogoProps> = ({
   return (
     <div className={`relative ${className}`}>
       <Image 
-        src="/assets/órbita.svg" 
+        src="/assets/orbita.svg" 
         alt="Órbita Logo" 
         width={width} 
         height={height}

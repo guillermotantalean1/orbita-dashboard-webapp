@@ -10,11 +10,11 @@ import {
   faChevronLeft
 } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
-import SolarSystem from './components/SolarSystem';
 import testsData, { Test } from './data/tests-data';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 // @ts-expect-error - El componente existe pero no encuentra las declaraciones de tipo
 import TestComponent from './components/TestComponent';
+import TestsGrid from './components/TestsGrid';
 
 // Definir la interfaz para los elementos del menú con submenús
 interface MenuItem {
@@ -347,14 +347,7 @@ export default function Home() {
       );
     } else if (activeSection === 'tests') {
       return (
-        <div className="space-y-8">
-          <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-700/80 p-6">
-            <div className="mb-4">
-              <h2 className="text-xl font-bold mb-2">Tests Vocacionales</h2>
-              <p className="text-gray-400 text-sm">
-                Descubre tus aptitudes, intereses y valores profesionales a través de nuestros tests especializados.
-              </p>
-            </div>
+        <div className="space-y-8">            
             
             {showTestInterface && activeTest ? (
               <div className="mt-4">
@@ -366,75 +359,34 @@ export default function Home() {
                 }} />
               </div>
             ) : (
-              <div className="mt-8 aspect-video relative rounded-lg overflow-hidden border border-gray-700/50 bg-black/30">
-                <SolarSystem 
-                  onLearnMore={(planet) => {
-                    // Find the test data and load it directly instead of navigating
-                    const test = testsData.find(t => t.route === planet.route);
-                    if (test) {
-                      setIsLoading(true);
-                      setLoadingProgress(0);
-                      
-                      // Simulate loading
-                      const interval = setInterval(() => {
-                        setLoadingProgress(prev => {
-                          const next = prev + Math.random() * 5;
-                          return next > 100 ? 100 : next;
-                        });
-                      }, 50);
-                      
-                      // After loading completes
-                      setTimeout(() => {
-                        clearInterval(interval);
-                        setLoadingProgress(100);
-                        
-                        setTimeout(() => {
-                          setActiveTest(test);
-                          setShowTestInterface(true);
-                          setIsLoading(false);
-                        }, 500);
-                      }, 1500);
-                    }
-                  }}
-                  onViewResults={(planet) => {
-                    // Check if results exist
-                    const results = localStorage.getItem(`test_${planet.route}_results`);
-                    if (results) {
-                      router.push(`/results/${planet.route}`);
-                    } else {
-                      // Start the test directly
-                      const test = testsData.find(t => t.route === planet.route);
-                      if (test) {
-                        setIsLoading(true);
-                        setLoadingProgress(0);
-                        
-                        // Simulate loading
-                        const interval = setInterval(() => {
-                          setLoadingProgress(prev => {
-                            const next = prev + Math.random() * 5;
-                            return next > 100 ? 100 : next;
-                          });
-                        }, 50);
-                        
-                        // After loading completes
-                        setTimeout(() => {
-                          clearInterval(interval);
-                          setLoadingProgress(100);
-                          
-                          setTimeout(() => {
-                            setActiveTest(test);
-                            setShowTestInterface(true);
-                            setIsLoading(false);
-                          }, 500);
-                        }, 1500);
-                      }
-                    }
-                  }}
-                />
-              </div>
+              <TestsGrid 
+                onSelectTest={(test) => {
+                  setIsLoading(true);
+                  setLoadingProgress(0);
+                  
+                  // Simulate loading
+                  const interval = setInterval(() => {
+                    setLoadingProgress(prev => {
+                      const next = prev + Math.random() * 5;
+                      return next > 100 ? 100 : next;
+                    });
+                  }, 50);
+                  
+                  // After loading completes
+                  setTimeout(() => {
+                    clearInterval(interval);
+                    setLoadingProgress(100);
+                    
+                    setTimeout(() => {
+                      setActiveTest(test);
+                      setShowTestInterface(true);
+                      setIsLoading(false);
+                    }, 500);
+                  }, 1500);
+                }} 
+              />
             )}
           </div>
-        </div>
       );
     }
     
@@ -690,8 +642,36 @@ export default function Home() {
             
             {/* Header de la página */}
             <div className="relative z-10 mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold">Hola {userName}, ¡bienvenido de vuelta!</h1>
-              <p className="text-gray-400">Continuemos tu viaje de autodescubrimiento</p>
+              {activeSection === 'home' ? (
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold">Hola {userName}, ¡bienvenido de vuelta!</h1>
+                  <p className="text-gray-400">Continuemos tu viaje de autodescubrimiento</p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold">
+                    {menuItems.find(item => item.id === activeSection)?.label || 'Exploración Vocacional'}
+                  </h1>
+                  {activeSection === 'tests' && (
+                    <p className="text-blue-400 mt-1">Descubre tus aptitudes e intereses a través de nuestros tests</p>
+                  )}
+                  {activeSection === 'progress' && (
+                    <p className="text-green-400 mt-1">Visualiza tu avance en el proceso de orientación</p>
+                  )}
+                  {activeSection === 'recommendations' && (
+                    <p className="text-purple-400 mt-1">Explora carreras y opciones que se ajustan a tu perfil</p>
+                  )}
+                  {activeSection === 'capsules' && (
+                    <p className="text-amber-400 mt-1">Contenido educativo para ampliar tu visión vocacional</p>
+                  )}
+                  {activeSection === 'counseling' && (
+                    <p className="text-cyan-400 mt-1">Conecta con asesores expertos en orientación</p>
+                  )}
+                  {activeSection === 'premium' && (
+                    <p className="text-amber-300 mt-1">Accede a funciones exclusivas para potenciar tu desarrollo</p>
+                  )}
+                </>
+              )}
             </div>
             
             {/* Contenido del dashboard - Se renderizará según la sección activa */}
