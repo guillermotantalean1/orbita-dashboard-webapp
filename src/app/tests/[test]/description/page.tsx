@@ -34,7 +34,7 @@ const TestDescription = () => {
         if (progress >= 100) {
           clearInterval(interval);
           setTimeout(() => {
-            router.push(`/tests/${testInfo.route}`);
+            router.push(`/tests/${testInfo.route}?skipLoader=true`);
           }, 500);
         }
       }, 100);

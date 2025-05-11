@@ -9,9 +9,11 @@ import {
   faChevronDown, faChevronRight, faCheck, faCalendarAlt, faCircleNotch,
   faChevronLeft
 } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
 import SolarSystem from './components/SolarSystem';
-import testsData from './data/tests-data';
+import testsData, { Test } from './data/tests-data';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+// @ts-expect-error - El componente existe pero no encuentra las declaraciones de tipo
 import TestComponent from './components/TestComponent';
 
 // Definir la interfaz para los elementos del menú con submenús
@@ -34,7 +36,7 @@ export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [showingSolarSystem, setShowingSolarSystem] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTest, setActiveTest] = useState<any>(null);
+  const [activeTest, setActiveTest] = useState<Test | null>(null);
   const [showTestInterface, setShowTestInterface] = useState(false);
 
   // Use the testsData from our imported module
@@ -526,22 +528,33 @@ export default function Home() {
         `}>
           <div className="flex flex-col h-full">
             {/* Logo y branding */}
-            <div className="p-3 border-b border-gray-800">
-              <div className="flex items-center justify-between">
+            <div className="p-4 border-b border-gray-800 flex flex-col items-center md:items-start">
+              <div className="flex items-center">
                 {!sidebarCollapsed && (
-                  <>
-                    <div className="text-base font-bold">Estelar</div>
-                  </>
+                  <div className="flex items-center">
+                    <div className="flex items-center justify-center mr-2 border-indigo-500/30">
+                      <Image 
+                        src="/assets/orbita.png" 
+                        alt="Órbita Logo" 
+                        width={100} 
+                        height={100}                        
+                        className="object-contain"
+                      />
+                    </div>
+                  </div>
                 )}
                 {sidebarCollapsed && (
-                  <div className="w-full flex justify-center">
-                    <div className="text-base font-bold">E</div>
+                  <div className="flex items-center justify-center border-indigo-500/30">
+                    <Image 
+                      src="/assets/logo.png" 
+                      alt="Órbita Logo" 
+                      width={20} 
+                      height={20}
+                      className="object-contain" 
+                    />
                   </div>
                 )}
               </div>
-              {!sidebarCollapsed && (
-                <div className="text-[10px] text-gray-400 mt-0.5">Descubre lo que te hace único</div>
-              )}
             </div>
             
             {/* Perfil del usuario */}

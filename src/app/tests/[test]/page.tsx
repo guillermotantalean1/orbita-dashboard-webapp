@@ -1,18 +1,23 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import testsData from '../../data/tests-data';
 
 export default function TestPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [current, setCurrent] = useState(0);
   const [test, setTest] = useState<any>(null);
   const [answers, setAnswers] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [dimensionScores, setDimensionScores] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  
+  // Check if we're coming from the description page with a direct transition
+  const skipLoader = searchParams.get('skipLoader') === 'true';
 
   useEffect(() => {
     const currentTest = testsData.find(t => t.route === params.test);
@@ -28,8 +33,18 @@ export default function TestPage() {
         });
         setDimensionScores(initialScores);
       }
+      
+      // Skip the loading screen if we're coming from the description page
+      if (skipLoader) {
+        setLoading(false);
+      } else {
+        // Otherwise show a brief loading screen
+        setTimeout(() => {
+          setLoading(false);
+        }, 800); // Short loading time
+      }
     }
-  }, [params.test]);
+  }, [params.test, skipLoader]);
 
   const calculateResults = (test: any, answers: any[]) => {
     // For tests with dimensions, calculate scores per dimension
@@ -126,7 +141,7 @@ export default function TestPage() {
     router.back(); // Volver a la página anterior en lugar de redirigir al dashboard
   };
 
-  if (!test) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#050A15] flex items-center justify-center">
         <div className="relative w-32 h-32">
@@ -148,6 +163,23 @@ export default function TestPage() {
               className="animate-[dash_1.5s_ease-in-out_infinite]"
             />
           </svg>
+        </div>
+      </div>
+    );
+  }
+
+  if (!test) {
+    return (
+      <div className="min-h-screen bg-[#050A15] flex items-center justify-center">
+        <div className="text-center text-white">
+          <h1 className="text-2xl font-bold mb-4">Test no encontrado</h1>
+          <p className="mb-6">Lo sentimos, el test que buscas no está disponible.</p>
+          <button 
+            onClick={() => router.back()}
+            className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Volver
+          </button>
         </div>
       </div>
     );
