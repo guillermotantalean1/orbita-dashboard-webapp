@@ -1,0 +1,35 @@
+{
+    "questions": [
+      {
+        "id": 1,
+        "question": "¿Como te llamas?",
+        "answer": ""
+      },
+      {
+        "id": 2,
+        "question": "¿Donde vives?",
+        "answer": ""
+      },
+      {
+        "id": 3,
+        "question": "¿Que edad tienes?",
+        "answer": ""
+      },
+      {
+        "id": 4,
+        "question": "¿Cual es tu grado escolar?",
+        "answer": ""
+      },
+      {
+        "id": 5,
+        "question": "¿Cuentas con acceso a internet?",
+        "answer": ""
+      },
+      {
+        "id": 6,
+        "question": "¿Cuales son tus intereses?",
+        "answer": ""
+      }
+    ]
+  }
+  

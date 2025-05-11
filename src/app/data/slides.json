@@ -1,0 +1,54 @@
+{
+    "carreras": [
+        {
+            "id": 1,
+            "nombre": "Medic@",
+            "imagen": "../../public/assets/img/hero/slides/medic.png"
+        },
+        {
+            "id": 2,
+            "nombre": "Ingenier@ Civil",
+            "imagen": "../../public/assets/img/hero/slides/civil.png"
+        },
+        {
+            "id": 3,
+            "nombre": "Ingenier@ de Software",
+            "imagen": "../../public/assets/img/hero/slides/software.png"
+        },
+        {
+            "id": 4,
+            "nombre": "Chef de Restaurante",
+            "imagen": "../../public/assets/img/hero/slides/chef.png"
+        },
+        {
+            "id": 5,
+            "nombre": "Bomber@",
+            "imagen": "../../public/assets/img/hero/slides/bomber.png"
+        },
+        {
+            "id": 6,
+            "nombre": "Mecánico",
+            "imagen": "../../public/assets/img/hero/slides/mecanic.png"
+        },
+        {
+            "id": 7,
+            "nombre": "Electricista",
+            "imagen": "../../public/assets/img/hero/slides/electrician.png"
+        },
+        {
+            "id": 8,
+            "nombre": "Psicólog@",
+            "imagen": "../../public/assets/img/hero/slides/psychologist.png"
+        },
+        {
+            "id": 9,
+            "nombre": "Pintor(a)",
+            "imagen": "../../public/assets/img/hero/slides/painter.png"
+        },
+        {
+            "id": 10,
+            "nombre": "Vendedor(a)",
+            "imagen": "../../public/assets/img/hero/slides/seller.png"
+        }
+    ]
+}

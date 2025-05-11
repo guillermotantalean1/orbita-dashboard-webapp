@@ -1,0 +1,117 @@
+{
+  "tests": [
+    {
+      "id": 1,
+      "name": "Test de Intereses Personales",
+      "description": "Este test evalúa tus intereses y preferencias personales",
+      "route": "intereses-personales",
+      "questions": [
+        {
+          "id": 1,
+          "text": "¿Cuál de estas actividades disfrutas más en tu tiempo libre?",
+          "options": [
+            { "label": "Leer libros" },
+            { "label": "Deportes al aire libre" },
+            { "label": "Artes y manualidades" },
+            { "label": "Juegos de lógica" }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "¿Qué tipo de películas prefieres ver?",
+          "options": [
+            { "label": "Documentales" },
+            { "label": "Acción y aventura" },
+            { "label": "Drama y romance" },
+            { "label": "Ciencia ficción" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Test de Habilidades de Resolución",
+      "description": "Este test evalúa tu forma de abordar y resolver problemas",
+      "route": "habilidades-resolucion",
+      "questions": [
+        {
+          "id": 1,
+          "text": "¿Cómo prefieres resolver un problema complejo?",
+          "options": [
+            { "label": "Dividirlo en partes pequeñas" },
+            { "label": "Buscar ayuda de otros" },
+            { "label": "Probar diferentes soluciones hasta que funcione" },
+            { "label": "Investigar teoría antes de actuar" }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "Cuando te enfrentas a un desafío, ¿qué haces primero?",
+          "options": [
+            { "label": "Analizar la situación" },
+            { "label": "Consultar con expertos" },
+            { "label": "Probar soluciones rápidas" },
+            { "label": "Investigar casos similares" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Test de Ambiente de Trabajo",
+      "description": "Este test evalúa tus preferencias en el entorno laboral",
+      "route": "ambiente-trabajo",
+      "questions": [
+        {
+          "id": 1,
+          "text": "¿En qué entorno te sientes más productivo?",
+          "options": [
+            { "label": "Silencioso y organizado" },
+            { "label": "Con música o ruido de fondo" },
+            { "label": "En equipo, colaborando" },
+            { "label": "De manera espontánea e improvisada" }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "¿Qué tipo de horario prefieres?",
+          "options": [
+            { "label": "Horario fijo y estructurado" },
+            { "label": "Horario flexible" },
+            { "label": "Trabajo por proyectos" },
+            { "label": "Trabajo remoto" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Test de Valores Profesionales",
+      "description": "Este test evalúa tus valores y aspiraciones profesionales",
+      "route": "personal-values",
+      "questions": [
+        {
+          "id": 1,
+          "text": "¿Qué valoras más al elegir un proyecto?",
+          "options": [
+            { "label": "Innovación y creatividad" },
+            { "label": "Estabilidad y previsibilidad" },
+            { "label": "Impacto social" },
+            { "label": "Reconocimiento profesional" }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "¿Cómo te describirían tus amigos?",
+          "options": [
+            { "label": "Analítico/a" },
+            { "label": "Aventurero/a" },
+            { "label": "Empático/a" },
+            { "label": "Organizado/a" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+  
